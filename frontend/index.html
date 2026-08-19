@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Job Application Agent</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="css/style.css?v=17">
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-mark">◆</span>
+      <span class="brand-text">Job Agent<small>AI application tracker</small></span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="active" data-tab="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
+      <button data-tab="config">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        Job Search Config
+      </button>
+      <button data-tab="resumes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Resumes
+      </button>
+      <button data-tab="jobs">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        Jobs
+      </button>
+    </nav>
+
+    <div class="sidebar-status">
+      <div class="status-line"><span class="status-dot" id="version-dot"></span><span id="version-badge">—</span></div>
+      <div class="status-line"><span class="status-dot" id="ai-status-dot"></span><span id="ai-status-badge">checking AI...</span></div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+  <!-- SETTINGS TAB -->
+  <div id="tab-settings" class="tab-pane">
+    <div class="card mb-4">
+      <div class="card-header">AI Provider <span class="badge bg-info text-dark">configured via .env</span></div>
+      <div class="card-body">
+        <p class="text-muted small">
+          The AI provider (Ollama vs Gemini) is set in <code>backend/.env</code>, not from this UI.
+          The <b>Gemini model</b> below, however, switches immediately - useful since Gemini
+          models occasionally return 503 (overloaded) or 429 (rate limited), and each model has
+          its own separate free-tier quota, so switching is a real fix, not just cosmetic.
+        </p>
+        <table class="table table-sm w-auto">
+          <tbody>
+            <tr><th>Active Provider</th><td id="disp_ai_provider">-</td></tr>
+            <tr><th>Ollama Base URL</th><td id="disp_ollama_base_url">-</td></tr>
+            <tr><th>Ollama Model</th><td id="disp_ollama_model">-</td></tr>
+            <tr>
+              <th>Gemini Model</th>
+              <td>
+                <select id="gemini-model-select" class="form-select form-select-sm d-inline-block w-auto"></select>
+                <span id="gemini-model-msg" class="ms-2"></span>
+              </td>
+            </tr>
+            <tr><th>Gemini API Key</th><td id="disp_gemini_key">-</td></tr>
+          </tbody>
+        </table>
+        <button class="btn btn-outline-secondary" id="test-ai-btn">Test Connection</button>
+        <span id="settings-msg" class="ms-2"></span>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header">Email Notifications <span class="badge bg-info text-dark">configured via .env</span></div>
+      <div class="card-body">
+        <p class="text-muted small">
+          Set via <code>EMAIL_PROVIDER</code> in <code>backend/.env</code>: <code>custom</code> (your own
+          self-hosted relay - no third-party ESP needed), <code>mailjet</code> (free forever, works
+          immediately), <code>brevo</code> (free forever but needs a 1-2 day manual approval first),
+          <code>sendgrid</code> (now a 60-day trial only), or <code>smtp</code> (local dev / paid Render
+          plans - Render's free tier blocks outbound SMTP entirely). Notifications are sent for:
+          new matching jobs found by the daily search, and applications due for a follow-up.
+        </p>
+        <p><strong>Status:</strong> <span id="email-status-text">checking...</span></p>
+        <button class="btn btn-outline-secondary" id="send-test-email-btn">Send Test Email</button>
+        <span id="email-test-msg" class="ms-2"></span>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header">Job Search Preferences</div>
+      <div class="card-body">
+        <label class="form-label">Job Description Language</label>
+        <select id="pref-language" class="form-select w-auto d-inline-block">
+          <option value="English">English (default)</option>
+          <option value="Any">Any language</option>
+          <option value="German">German</option>
+          <option value="French">French</option>
+          <option value="Spanish">Spanish</option>
+          <option value="Portuguese">Portuguese</option>
+          <option value="Hindi">Hindi</option>
+          <option value="Tamil">Tamil</option>
+        </select>
+        <div class="form-text">
+          Jobs whose description isn't detected as this language are skipped during search.
+          This is the same "language" field in your Job Search Config JSON.
+        </div>
+        <span id="pref-language-msg" class="ms-2"></span>
+
+        <hr>
+        <label class="form-label">Only Show Jobs Posted Within (days)</label>
+        <input type="number" id="pref-posted-within-days" class="form-control w-auto d-inline-block" min="1" max="365" style="width:100px">
+        <button class="btn btn-sm btn-outline-primary" id="pref-posted-within-save-btn">Save</button>
+        <div class="form-text">
+          Jobs older than this (or with no detectable posting date - kept regardless) are skipped during search.
+          Same as "job_posted_within_days" in your Job Search Config JSON.
+        </div>
+        <span id="pref-posted-within-msg" class="ms-2"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIG TAB -->
+  <div id="tab-config" class="tab-pane d-none">
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Job Search Config (JSON)</span>
+        <div>
+          <label class="btn btn-sm btn-outline-secondary mb-0">
+            Upload JSON
+            <input type="file" id="config-file-input" accept=".json" hidden>
+          </label>
+          <button class="btn btn-sm btn-outline-secondary" id="reload-config-btn">Reload</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="text-muted small">
+          Edit the JSON below directly, or upload a .json file - either way you can update this
+          at any time and it takes effect immediately, no restart needed.
+        </p>
+        <textarea id="config-json" class="form-control font-monospace" rows="22" spellcheck="false"></textarea>
+        <div class="mt-3">
+          <button class="btn btn-success" id="save-config-btn">Save Config</button>
+          <span id="config-msg" class="ms-2"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESUMES TAB -->
+  <div id="tab-resumes" class="tab-pane d-none">
+    <div class="card mb-3">
+      <div class="card-header">Upload Resume</div>
+      <div class="card-body">
+        <div class="row g-2 align-items-end">
+          <div class="col-auto">
+            <label class="form-label mb-1">File (.pdf or .docx)</label>
+            <input type="file" id="resume-file-input" class="form-control" accept=".pdf,.docx">
+          </div>
+          <div class="col-auto form-check ms-2 mb-2">
+            <input class="form-check-input" type="checkbox" id="resume-set-default">
+            <label class="form-check-label" for="resume-set-default">Set as default</label>
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-primary mb-2" id="resume-upload-btn">Upload</button>
+          </div>
+        </div>
+        <span id="resume-upload-msg"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header d-flex justify-content-between">
+        <span>Your Resumes</span>
+        <button class="btn btn-sm btn-outline-secondary" id="reload-resumes-btn">Reload</button>
+      </div>
+      <div class="card-body">
+        <div id="resumes-list" class="list-group"></div>
+      </div>
+    </div>
+
+    <!-- Resume detail modal-ish panel -->
+    <div class="card mt-3 d-none" id="resume-detail-card">
+      <div class="card-header d-flex justify-content-between">
+        <span id="resume-detail-title">Resume</span>
+        <button class="btn btn-sm btn-outline-secondary" id="resume-detail-close">Close</button>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <button class="btn btn-sm btn-outline-primary" id="resume-set-default-btn">Set as Default</button>
+          <button class="btn btn-sm btn-outline-danger" id="resume-delete-btn">Delete</button>
+          <label class="btn btn-sm btn-outline-secondary mb-0">
+            Upload New Version
+            <input type="file" id="resume-version-input" accept=".pdf,.docx" hidden>
+          </label>
+          <button class="btn btn-sm btn-outline-success" id="resume-analyze-btn">Analyze with AI</button>
+        </div>
+        <h6>Extracted Text</h6>
+        <pre id="resume-detail-text" class="border rounded p-2 bg-white" style="max-height:250px; overflow:auto; white-space:pre-wrap;"></pre>
+
+        <h6 class="mt-3">Version History</h6>
+        <ul id="resume-versions-list" class="list-group mb-3"></ul>
+
+        <div id="resume-analysis-block" class="d-none">
+          <h6>AI Analysis</h6>
+          <pre id="resume-analysis-text" class="border rounded p-2 bg-light" style="white-space:pre-wrap;"></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- COVER LETTERS -->
+    <div class="card mt-4">
+      <div class="card-header">Cover Letters</div>
+      <div class="card-body">
+        <div class="row g-2 align-items-end mb-3">
+          <div class="col-auto">
+            <label class="form-label mb-1">File (.pdf or .docx)</label>
+            <input type="file" id="cl-file-input" class="form-control" accept=".pdf,.docx">
+          </div>
+          <div class="col-auto form-check ms-2 mb-2">
+            <input class="form-check-input" type="checkbox" id="cl-set-default">
+            <label class="form-check-label" for="cl-set-default">Set as default</label>
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-primary mb-2" id="cl-upload-btn">Upload</button>
+          </div>
+          <div class="col-12"><span id="cl-upload-msg"></span></div>
+        </div>
+        <div id="cl-list" class="list-group"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JOBS TAB -->
+  <div id="tab-jobs" class="tab-pane d-none">
+    <div class="card mb-3">
+      <div class="card-header">Automated Job Search</div>
+      <div class="card-body">
+        <p class="text-muted small">
+          Pulls from the sources listed in your Job Search Config (currently: Remotive and Arbeitnow are
+          live free job-board APIs; LinkedIn/Indeed/Naukri/etc. need browser automation and aren't wired up
+          yet). Also runs automatically once a day if the server stays awake.
+        </p>
+        <button class="btn btn-primary" id="run-search-btn">Search Jobs Now</button>
+        <button class="btn btn-outline-danger" id="clear-jobs-btn">Clear "New" Jobs</button>
+        <span id="search-msg" class="ms-2"></span>
+      </div>
+    </div>
+
+    <div class="card mb-3 d-none" id="followups-card">
+      <div class="card-header">Follow-ups Due</div>
+      <div class="card-body">
+        <p class="text-muted small mb-2">
+          Automatic schedule for applied jobs: 1st reminder at day 3, 2nd at day 5, 3rd at day 8 -
+          sent to the job's HR email if one is on file, otherwise you're notified to follow up manually.
+          Still no response by day 10 auto-marks the job "Not Responded". Runs daily; you can also
+          send early below.
+        </p>
+        <div id="followups-list"></div>
+        <div id="followup-preview-block" class="d-none border rounded p-2 mt-2 bg-white">
+          <strong id="followup-preview-title"></strong>
+          <label class="form-label small mb-0 mt-2">Subject</label>
+          <input type="text" id="followup-email-subject" class="form-control form-control-sm mb-2">
+          <label class="form-label small mb-0">Body (HTML - edit freely)</label>
+          <textarea id="followup-email-body" class="form-control form-control-sm mb-2" rows="8"></textarea>
+          <button class="btn btn-sm btn-success" id="followup-confirm-send-btn">Confirm & Send</button>
+          <button class="btn btn-sm btn-outline-secondary" id="followup-cancel-btn">Cancel</button>
+          <span id="followup-send-msg" class="ms-2"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Import Jobs from Excel</span>
+        <a href="/api/jobs/import-excel/template" class="btn btn-sm btn-outline-secondary" download>Download Sample Template</a>
+      </div>
+      <div class="card-body">
+        <p class="text-muted small mb-2">
+          Columns: Company Name, Location, Job Description, HR Email, Role Name, Job URL, Salary (optional).
+          Use the same template every time - download it above, fill in rows, upload below.
+          The file itself is never stored, only the row data.
+        </p>
+        <input type="file" id="excel-import-input" class="form-control" accept=".xlsx" style="max-width:400px; display:inline-block">
+        <button class="btn btn-primary" id="excel-import-btn">Import</button>
+        <span id="excel-import-msg" class="ms-2"></span>
+      </div>
+    </div>
+
+    <div class="card mb-3">
+      <div class="card-header">Add Job (manual entry - scrapers plug in here later)</div>
+      <div class="card-body">
+        <div class="row g-2">
+          <div class="col-md-4"><input class="form-control" id="job-title" placeholder="Job Title"></div>
+          <div class="col-md-4"><input class="form-control" id="job-company" placeholder="Company"></div>
+          <div class="col-md-4"><input class="form-control" id="job-location" placeholder="Location"></div>
+          <div class="col-md-4"><input class="form-control" id="job-url" placeholder="Job URL (optional)"></div>
+          <div class="col-md-4"><input class="form-control" id="job-salary" placeholder="Salary (optional)"></div>
+          <div class="col-md-4"><input type="email" class="form-control" id="job-hr-email-input" placeholder="HR Email (optional)"></div>
+          <div class="col-12">
+            <textarea class="form-control" id="job-description" rows="5" placeholder="Paste full job description here..."></textarea>
+          </div>
+          <div class="col-12">
+            <button class="btn btn-primary" id="job-add-btn">Add Job</button>
+            <span id="job-add-msg" class="ms-2"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <span>Jobs</span>
+        <div class="d-flex align-items-center gap-2">
+          <label class="mb-0 small">Min match %:</label>
+          <input type="number" id="min-match-filter" class="form-control form-control-sm" style="width:70px" min="0" max="100" placeholder="any">
+          <button class="btn btn-sm btn-outline-primary" id="analyze-unanalyzed-btn">Analyze All Unanalyzed (AI)</button>
+          <button class="btn btn-sm btn-outline-secondary" id="reload-jobs-btn">Reload</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <span id="analyze-unanalyzed-msg" class="d-block mb-2"></span>
+        <div id="jobs-list" class="list-group"></div>
+      </div>
+    </div>
+
+    <div class="card mt-3 d-none" id="job-detail-card">
+      <div class="card-header d-flex justify-content-between">
+        <span id="job-detail-title">Job</span>
+        <button class="btn btn-sm btn-outline-secondary" id="job-detail-close">Close</button>
+      </div>
+      <div class="card-body">
+        <div class="mb-2">
+          <select class="form-select form-select-sm d-inline-block w-auto" id="job-status-select">
+            <option value="new">New</option>
+            <option value="saved">Saved</option>
+            <option value="applied">Applied</option>
+            <option value="rejected">Rejected</option>
+            <option value="interview">Interview</option>
+            <option value="offer">Offer</option>
+            <option value="not_responded">Not Responded</option>
+          </select>
+          <button class="btn btn-sm btn-outline-danger" id="job-delete-btn">Delete</button>
+          <button class="btn btn-sm btn-outline-success" id="job-analyze-btn">Analyze / ATS Match</button>
+          <button class="btn btn-sm btn-primary" id="job-apply-btn">Apply Now (Website)</button>
+          <div class="form-text">Opens the employer's actual page in a new tab (resolves past aggregator redirect links like Adzuna's) and marks it as "Applied" - it does not auto-fill or auto-submit any form on the company's site.</div>
+        </div>
+
+        <div id="job-reminder-status" class="small text-muted mb-2"></div>
+
+        <div class="border rounded p-2 mb-3 bg-white">
+          <strong>Email HR / Recruiter Instead</strong>
+          <div class="form-text mb-1">
+            Preview, edit if needed, then send a professional application email with your default resume
+            (and cover letter, if set) attached. Nothing sends until you confirm.
+          </div>
+          <div class="row g-2 align-items-center mb-2">
+            <div class="col-auto" style="min-width:280px">
+              <input type="email" id="job-hr-email" class="form-control form-control-sm" placeholder="hr@company.com">
+            </div>
+            <div class="col-auto">
+              <button class="btn btn-sm btn-outline-primary" id="job-email-preview-btn">Preview Email</button>
+            </div>
+          </div>
+          <div id="job-email-preview-block" class="d-none">
+            <label class="form-label small mb-0">Subject</label>
+            <input type="text" id="job-email-subject" class="form-control form-control-sm mb-2">
+            <label class="form-label small mb-0">Body (HTML - edit freely)</label>
+            <textarea id="job-email-body" class="form-control form-control-sm mb-2" rows="10"></textarea>
+            <button class="btn btn-sm btn-success" id="job-email-confirm-send-btn">Confirm & Send</button>
+            <button class="btn btn-sm btn-outline-secondary" id="job-email-cancel-btn">Cancel</button>
+          </div>
+          <span id="job-email-apply-msg" class="ms-2"></span>
+        </div>
+        <div id="job-application-status" class="small text-muted mb-3"></div>
+
+        <h6>Description</h6>
+        <pre id="job-detail-desc" class="border rounded p-2 bg-white" style="max-height:200px; overflow:auto; white-space:pre-wrap;"></pre>
+
+        <div id="job-analysis-block" class="d-none">
+          <h6 class="mt-3">AI Analysis / ATS Match</h6>
+          <div class="mb-2">
+            <span class="badge bg-primary fs-6" id="job-match-badge">0%</span>
+            <span id="job-match-reason" class="ms-2"></span>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <strong>Extracted Skills</strong>
+              <ul id="job-skills-list" class="small"></ul>
+              <strong>Missing Skills</strong>
+              <ul id="job-missing-skills-list" class="small text-danger"></ul>
+            </div>
+            <div class="col-md-6">
+              <strong>Learning Suggestions</strong>
+              <ul id="job-learning-list" class="small"></ul>
+              <p class="small"><strong>Experience Required:</strong> <span id="job-experience"></span></p>
+              <p class="small"><strong>Interview Difficulty:</strong> <span id="job-difficulty"></span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </main>
+</div>
+
+<script src="js/app.js?v=17"></script>
+</body>
+</html>
